@@ -9,28 +9,31 @@ import Particles from "react-particles-js";
 import Clarifai from "clarifai";
 import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
 import Register from "./Components/Register/Register";
+import Modal from "react-awesome-modal";
 
 const app = new Clarifai.App({
   apiKey: "f58db3e72129494cbe9650eb2e383c5e"
 });
 
+const initialState = {
+  input: "",
+  visible: false,
+  imageUrl: "",
+  box: {},
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: ""
+  }
+};
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: "",
-      imageUrl: "",
-      box: {},
-      route: "signin",
-      isSignedIn: false,
-      user: {
-        id: "",
-        name: "",
-        email: "",
-        entries: 0,
-        joined: ""
-      }
-    };
+    this.state = initialState;
   }
 
   calculateFaceLocation = data => {
@@ -87,14 +90,13 @@ class App extends Component {
       .catch(err => console.log({ err }));
   };
 
-  onRouteChange = route => {
-    let isSignedIn = false;
-    if (route === "home") isSignedIn = true;
-    this.setState({ route, isSignedIn });
+  onRouteChange = (route, signout = false) => {
+    const userSettings = signout ? initialState : {};
+    this.setState({ route, isSignedIn: route === "home", ...userSettings });
   };
 
   render() {
-    const { imageUrl, route, isSignedIn, user } = this.state;
+    const { imageUrl, route, isSignedIn, user, visible } = this.state;
     const particleOptions = {
       particles: {
         number: {
@@ -106,8 +108,24 @@ class App extends Component {
         }
       }
     };
+
     return (
       <div className="App">
+        <Modal
+          visible={visible}
+          width="400"
+          height="300"
+          effect="fadeInUp"
+          // onClickAway={() => this.closeModal()}
+        >
+          <div>
+            <h1>Title</h1>
+            <p>Some Contents</p>
+            <a href="javascript:void(0);" onClick={() => this.closeModal()}>
+              Close
+            </a>
+          </div>
+        </Modal>
         <Particles className="particles" params={particleOptions} />
         <Navigation
           isSignedIn={isSignedIn}
