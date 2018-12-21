@@ -6,14 +6,9 @@ import Signin from "./Components/Signin/Signin";
 import Rank from "./Components/Rank/Rank";
 import "./App.css";
 import Particles from "react-particles-js";
-import Clarifai from "clarifai";
 import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
 import Register from "./Components/Register/Register";
 import Modal from "react-awesome-modal";
-
-const app = new Clarifai.App({
-  apiKey: "f58db3e72129494cbe9650eb2e383c5e"
-});
 
 const initialState = {
   input: "",
@@ -65,8 +60,16 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+    fetch("http://localhost:3000/imageurl", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => (response.ok ? response.json() : null))
       .then(response => {
         if (response) {
           fetch("http://localhost:3000/image", {
@@ -80,12 +83,14 @@ class App extends Component {
           })
             .then(response => response.json())
             .then(entries => {
-              this.setState({
-                user: { ...this.state.user, entries }
-              });
+              this.setState(
+                {
+                  user: { ...this.state.user, entries }
+                },
+                this.displayFaceBox(this.calculateFaceLocation(response))
+              );
             });
         }
-        this.displayFaceBox(this.calculateFaceLocation(response));
       })
       .catch(err => console.log({ err }));
   };
