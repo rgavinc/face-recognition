@@ -1,57 +1,131 @@
 import React, { Component } from "react";
-import Navigation from "./Components/Navigation/Navigation";
-import Logo from "./Components/Logo/Logo";
-import ImageLinkForm from "./Components/ImageLinkForm/ImageLinkForm";
-import Signin from "./Components/Signin/Signin";
-import Rank from "./Components/Rank/Rank";
-import "./App.css";
 import Particles from "react-particles-js";
-import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
-import Register from "./Components/Register/Register";
-import Modal from "react-awesome-modal";
+import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import Navigation from "./components/Navigation/Navigation";
+import Signin from "./components/Signin/Signin";
+import Register from "./components/Register/Register";
+import Logo from "./components/Logo/Logo";
+import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
+import Rank from "./components/Rank/Rank";
+import Modal from "./components/Modal/Modal";
+import Profile from "./components/Profile/Profile";
+import Loader from "react-loader-spinner";
+import "./App.css";
+
+const particlesOptions = {
+  particles: {
+    number: {
+      value: 30,
+      density: {
+        enable: true,
+        value_area: 800
+      }
+    }
+  }
+};
 
 const initialState = {
   input: "",
-  visible: false,
   imageUrl: "",
   box: {},
-  route: "signin",
+  route: "loading",
   isSignedIn: false,
+  isProfileOpen: false,
   user: {
     id: "",
     name: "",
+    pet: "",
+    age: "",
     email: "",
     entries: 0,
     joined: ""
   }
 };
+
+// TODO: add pet and age functionality
+// TODO: delete token after signout
+// TODO: add roouting
+// TODO: add auth to reegister
+// TODO: clean up code
+
 class App extends Component {
   constructor() {
     super();
     this.state = initialState;
   }
 
+  componentDidMount() {
+    console.log("in compoonent did moount");
+    const token = window.sessionStorage.getItem("token");
+    if (token) {
+      console.log("I have a token");
+      fetch("http://localhost:3000/signin", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        }
+      })
+        .then(resp => resp.json())
+        .then(data => {
+          if (data && data.id) {
+            fetch(`http://localhost:3000/profile/${data.id}`, {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+              }
+            })
+              .then(resp => resp.json())
+              .then(user => {
+                if (user && user.email) {
+                  this.loadUser(user);
+                  this.onRouteChange("home");
+                }
+              })
+              .catch(err => {
+                console.log("bad");
+                throw Error("fail");
+              });
+          } else {
+            console.log();
+            throw Error("no data");
+          }
+        })
+        .catch(err => {
+          console.log("something bad happened", err);
+          this.onRouteChange("signin");
+        });
+    } else {
+      this.onRouteChange("signin");
+    }
+  }
+
+  loadUser = data => {
+    this.setState({
+      user: data
+    });
+  };
+
   calculateFaceLocation = data => {
-    const clarifaiFace =
-      data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.querySelector("#input-image");
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return {
-      left: clarifaiFace.left_col * width,
-      top: clarifaiFace.top_row * height,
-      right: width - clarifaiFace.right_col * width,
-      bottom: height - clarifaiFace.bottom_row * height
-    };
+    if (data && data.outputs) {
+      const clarifaiFace =
+        data.outputs[0].data.regions[0].region_info.bounding_box;
+      const regions = data.outputs[0].data.regions;
+      const image = document.getElementById("inputimage");
+      const width = Number(image.width);
+      const height = Number(image.height);
+      return regions.map(({ region_info: { bounding_box } }) => ({
+        left: bounding_box.left_col * width,
+        top: bounding_box.top_row * height,
+        right: width - bounding_box.right_col * width,
+        bottom: height - bounding_box.bottom_row * height
+      }));
+    }
+    return;
   };
 
-  loadUser = user => {
-    const { password, ...rest } = user;
-    this.setState({ user: rest });
-  };
-
-  displayFaceBox = box => {
-    this.setState({ box });
+  displayFaceBoxes = boxes => {
+    if (boxes) this.setState({ boxes });
   };
 
   onInputChange = event => {
@@ -60,82 +134,99 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    fetch("https://shrouded-earth-24968.herokuapp.com/imageurl", {
-      method: "POST",
+    fetch("http://localhost:3000/imageurl", {
+      method: "post",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: window.sessionStorage.getItem("token")
       },
       body: JSON.stringify({
         input: this.state.input
       })
     })
-      .then(response => (response.ok ? response.json() : null))
+      .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch("https://shrouded-earth-24968.herokuapp.com/image", {
-            method: "PUT",
+          fetch("http://localhost:3000/image", {
+            method: "put",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              Authorization: window.sessionStorage.getItem("token")
             },
             body: JSON.stringify({
               id: this.state.user.id
             })
           })
             .then(response => response.json())
-            .then(entries => {
-              this.setState(
-                {
-                  user: { ...this.state.user, entries }
-                },
-                this.displayFaceBox(this.calculateFaceLocation(response))
-              );
-            });
+            .then(count => {
+              this.setState(Object.assign(this.state.user, { entries: count }));
+            })
+            .catch(console.log);
         }
+        this.displayFaceBoxes(this.calculateFaceLocation(response));
       })
-      .catch(err => console.log({ err }));
+      .catch(err => console.log(err));
   };
 
-  onRouteChange = (route, signout = false) => {
-    const userSettings = signout ? initialState : {};
-    this.setState({ route, isSignedIn: route === "home", ...userSettings });
+  onRouteChange = route => {
+    if (route === "signout") {
+      return this.setState(initialState);
+    } else if (route === "home") {
+      this.setState({ isSignedIn: true });
+    }
+    this.setState({ route: route });
+  };
+
+  toggleModal = () => {
+    console.log("calling toggle modal");
+    this.setState(state => ({
+      isProfileOpen: !state.isProfileOpen
+    }));
   };
 
   render() {
-    const { imageUrl, route, isSignedIn, user, visible } = this.state;
-    const particleOptions = {
-      particles: {
-        number: {
-          value: 100,
-          density: {
-            enable: true,
-            value_area: 800
-          }
-        }
-      }
-    };
-
+    const {
+      isSignedIn,
+      imageUrl,
+      route,
+      boxes,
+      isProfileOpen,
+      user
+    } = this.state;
+    console.log({ isProfileOpen });
     return (
       <div className="App">
-        <Modal
-          visible={visible}
-          width="400"
-          height="300"
-          effect="fadeInUp"
-          // onClickAway={() => this.closeModal()}
-        >
-          <div>
-            <h1>Title</h1>
-            <p>Some Contents</p>
-            <a href="javascript:void(0);" onClick={() => this.closeModal()}>
-              Close
-            </a>
-          </div>
-        </Modal>
-        <Particles className="particles" params={particleOptions} />
+        <Particles className="particles" params={particlesOptions} />
         <Navigation
-          isSignedIn={isSignedIn}
+          {...{ isSignedIn, user }}
           onRouteChange={this.onRouteChange}
+          toggleModal={this.toggleModal}
         />
+        {isProfileOpen && (
+          <Modal>
+            <Profile
+              {...{ isProfileOpen, user }}
+              loadUser={this.loadUser}
+              toggleModal={this.toggleModal}
+            >
+              hello
+            </Profile>
+          </Modal>
+        )}
+        {route === "home" && (
+          <div>
+            <Logo />
+            <Rank
+              name={this.state.user.name}
+              entries={this.state.user.entries}
+            />
+            <ImageLinkForm
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}
+            />
+            <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
+          </div>
+        )}
         {route === "signin" && (
           <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         )}
@@ -145,16 +236,14 @@ class App extends Component {
             onRouteChange={this.onRouteChange}
           />
         )}
-        {route === "home" && (
-          <React.Fragment>
-            <Logo />
-            <Rank name={user.name} entries={user.entries} />
-            <ImageLinkForm
-              onInputChange={this.onInputChange}
-              onButtonSubmit={this.onButtonSubmit}
-            />
-            <FaceRecognition box={this.state.box} imageUrl={imageUrl} />
-          </React.Fragment>
+        {route === "loading" && (
+          <Loader
+            type="Puff"
+            color="#00BFFF"
+            height={100}
+            width={100}
+            timeout={3000} //3 secs
+          />
         )}
       </div>
     );

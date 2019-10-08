@@ -1,4 +1,5 @@
 import React from "react";
+import { signin } from "../../utils/app-functions";
 
 class Register extends React.Component {
   constructor(props) {
@@ -10,35 +11,43 @@ class Register extends React.Component {
     };
   }
 
-  onValueChange = key => event => {
-    this.setState({ [key]: event.target.value });
+  onNameChange = event => {
+    this.setState({ name: event.target.value });
   };
 
-  onRegisterSumbit = () => {
-    fetch("https://shrouded-earth-24968.herokuapp.com/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password,
-        name: this.state.name
-      })
+  onEmailChange = event => {
+    this.setState({ email: event.target.value });
+  };
+
+  onPasswordChange = event => {
+    this.setState({ password: event.target.value });
+  };
+
+  // TODO: this function already exists in Signin.js
+  onUserRetrevial = user => {
+    this.props.loadUser(user);
+    this.props.onRouteChange("home");
+  };
+
+  onSubmitRegistration = () => {
+    const { email, password, name } = this.state;
+    fetch("http://localhost:3000/register", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, name })
     })
       .then(response => response.json())
       .then(user => {
         if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange("home");
+          signin(email, password, this.onUserRetrevial);
         }
       })
-      .catch(err => console.log({ err }));
+      .catch(e => console.log("registration error", e));
   };
 
   render() {
     return (
-      <article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
+      <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
         <main className="pa4 black-80">
           <div className="measure">
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
@@ -48,11 +57,11 @@ class Register extends React.Component {
                   Name
                 </label>
                 <input
-                  onChange={this.onValueChange("name")}
                   className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="text"
                   name="name"
                   id="name"
+                  onChange={this.onNameChange}
                 />
               </div>
               <div className="mt3">
@@ -60,11 +69,11 @@ class Register extends React.Component {
                   Email
                 </label>
                 <input
-                  onChange={this.onValueChange("email")}
                   className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="email"
                   name="email-address"
                   id="email-address"
+                  onChange={this.onEmailChange}
                 />
               </div>
               <div className="mv3">
@@ -72,17 +81,17 @@ class Register extends React.Component {
                   Password
                 </label>
                 <input
-                  onChange={this.onValueChange("password")}
                   className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="password"
                   name="password"
                   id="password"
+                  onChange={this.onPasswordChange}
                 />
               </div>
             </fieldset>
             <div className="">
               <input
-                onClick={() => this.onRegisterSumbit("home")}
+                onClick={this.onSubmitRegistration}
                 className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                 type="submit"
                 value="Register"
