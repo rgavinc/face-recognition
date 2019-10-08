@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "lodash.template": "^4.5.0",
+    "mem": "^5.1.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-loader-spinner": "^3.1.4",
     "react-particles-js": "^2.1.0",
-    "react-scripts": "1.0.17",
+    "react-scripts": "^3.2.0",
     "react-tilt": "^0.1.4",
     "reactstrap": "^8.0.1",
     "tachyons": "^4.9.0"
@@ -18,5 +20,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "eslint": "^6.5.1"
   }
 }
