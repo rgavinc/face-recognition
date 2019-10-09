@@ -27,7 +27,7 @@ const particlesOptions = {
 const initialState = {
   input: "",
   imageUrl: "",
-  box: {},
+  boxes: [],
   route: "loading",
   isSignedIn: false,
   isProfileOpen: false,
@@ -44,7 +44,7 @@ const initialState = {
 
 const App = () => {
   const [
-    { input, imageUrl, box, route, isSignedIn, isProfileOpen, user },
+    { input, imageUrl, boxes, route, isSignedIn, isProfileOpen, user },
     setState
   ] = useState(initialState);
 
@@ -111,15 +111,17 @@ const App = () => {
     return;
   };
 
-  const displayFaceBoxes = box => {
-    if (box) setState(prevState => ({ ...prevState, box }));
+  const displayFaceBoxes = boxes => {
+    if (boxes) setState(prevState => ({ ...prevState, boxes }));
   };
 
   const onInputChange = e => {
+    e.persist();
     setState(prevState => ({ ...prevState, input: e.target.value }));
   };
 
   const onButtonSubmit = () => {
+    console.log("ono button submit");
     setState(prevState => ({ ...prevState, imageUrl: input }));
     fetch("http://localhost:3000/imageurl", {
       method: "post",
@@ -187,7 +189,7 @@ const App = () => {
           <Logo />
           <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm {...{ onInputChange, onButtonSubmit }} />
-          <FaceRecognition {...{ imageUrl, box }} />
+          <FaceRecognition {...{ imageUrl, boxes }} />
         </div>
       )}
       {route === "signin" && <Signin {...{ loadUser, onRouteChange }} />}
