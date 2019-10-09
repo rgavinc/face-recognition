@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import Particles from "react-particles-js";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Navigation from "./components/Navigation/Navigation";
@@ -42,23 +42,15 @@ const initialState = {
   }
 };
 
-// TODO: add pet and age functionality
-// TODO: delete token after signout
-// TODO: add roouting
-// TODO: add auth to reegister
-// TODO: clean up code
+const App = () => {
+  const [
+    { input, imageUrl, box, route, isSignedIn, isProfileOpen, user },
+    setState
+  ] = useState(initialState);
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = initialState;
-  }
-
-  componentDidMount() {
-    console.log("in compoonent did moount");
+  useEffect(() => {
     const token = window.sessionStorage.getItem("token");
     if (token) {
-      console.log("I have a token");
       fetch("http://localhost:3000/signin", {
         method: "post",
         headers: {
@@ -78,35 +70,30 @@ class App extends Component {
               .then(resp => resp.json())
               .then(user => {
                 if (user && user.email) {
-                  this.loadUser(user);
-                  this.onRouteChange("home");
+                  loadUser(user);
+                  onRouteChange("home");
                 }
               })
               .catch(err => {
-                console.log("bad");
                 throw Error("fail");
               });
-          } else {
-            console.log();
-            throw Error("no data");
-          }
+          } else throw Error("no data");
         })
         .catch(err => {
           console.log("something bad happened", err);
-          this.onRouteChange("signin");
+          onRouteChange("signin");
         });
-    } else {
-      this.onRouteChange("signin");
-    }
-  }
+    } else onRouteChange("signin");
+  }, []);
 
-  loadUser = data => {
-    this.setState({
+  const loadUser = data => {
+    setState(prevState => ({
+      ...prevState,
       user: data
-    });
+    }));
   };
 
-  calculateFaceLocation = data => {
+  const calculateFaceLocation = data => {
     if (data && data.outputs) {
       const clarifaiFace =
         data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -124,25 +111,23 @@ class App extends Component {
     return;
   };
 
-  displayFaceBoxes = boxes => {
-    if (boxes) this.setState({ boxes });
+  const displayFaceBoxes = box => {
+    if (box) setState(prevState => ({ ...prevState, box }));
   };
 
-  onInputChange = event => {
-    this.setState({ input: event.target.value });
+  const onInputChange = e => {
+    setState(prevState => ({ ...prevState, input: e.target.value }));
   };
 
-  onButtonSubmit = () => {
-    this.setState({ imageUrl: this.state.input });
+  const onButtonSubmit = () => {
+    setState(prevState => ({ ...prevState, imageUrl: input }));
     fetch("http://localhost:3000/imageurl", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
         Authorization: window.sessionStorage.getItem("token")
       },
-      body: JSON.stringify({
-        input: this.state.input
-      })
+      body: JSON.stringify({ input })
     })
       .then(response => response.json())
       .then(response => {
@@ -154,100 +139,70 @@ class App extends Component {
               Authorization: window.sessionStorage.getItem("token")
             },
             body: JSON.stringify({
-              id: this.state.user.id
+              id: user.id
             })
           })
             .then(response => response.json())
             .then(count => {
-              this.setState(Object.assign(this.state.user, { entries: count }));
+              setState(prevState => ({
+                ...prevState,
+                user: { ...user, entries: count }
+              }));
             })
             .catch(console.log);
         }
-        this.displayFaceBoxes(this.calculateFaceLocation(response));
+        displayFaceBoxes(calculateFaceLocation(response));
       })
-      .catch(err => console.log(err));
+      .catch(console.log);
   };
 
-  onRouteChange = route => {
-    if (route === "signout") {
-      return this.setState(initialState);
-    } else if (route === "home") {
-      this.setState({ isSignedIn: true });
+  const onRouteChange = route => {
+    if (route === "signout") return setState(initialState);
+    else if (route === "home") {
+      setState(prevState => ({ ...prevState, isSignedIn: true }));
     }
-    this.setState({ route: route });
+    setState(prevState => ({ ...prevState, route: route }));
   };
 
-  toggleModal = () => {
-    console.log("calling toggle modal");
-    this.setState(state => ({
-      isProfileOpen: !state.isProfileOpen
+  const toggleModal = () => {
+    setState(prevState => ({
+      ...prevState,
+      isProfileOpen: !isProfileOpen
     }));
   };
 
-  render() {
-    const {
-      isSignedIn,
-      imageUrl,
-      route,
-      boxes,
-      isProfileOpen,
-      user
-    } = this.state;
-    console.log({ isProfileOpen });
-    return (
-      <div className="App">
-        <Particles className="particles" params={particlesOptions} />
-        <Navigation
-          {...{ isSignedIn, user }}
-          onRouteChange={this.onRouteChange}
-          toggleModal={this.toggleModal}
+  return (
+    <div className="App">
+      <Particles className="particles" params={particlesOptions} />
+      <Navigation {...{ isSignedIn, user, onRouteChange, toggleModal }} />
+      {isProfileOpen && (
+        <Modal>
+          <Profile {...{ isProfileOpen, user, loadUser, toggleModal }}>
+            hello
+          </Profile>
+        </Modal>
+      )}
+      {route === "home" && (
+        <div>
+          <Logo />
+          <Rank name={user.name} entries={user.entries} />
+          <ImageLinkForm {...{ onInputChange, onButtonSubmit }} />
+          <FaceRecognition {...{ imageUrl, box }} />
+        </div>
+      )}
+      {route === "signin" && <Signin {...{ loadUser, onRouteChange }} />}
+      {route === "register" && <Register {...{ loadUser, onRouteChange }} />}
+      {route === "loading" && (
+        <Loader
+          type="Puff"
+          color="#00BFFF"
+          height={100}
+          width={100}
+          timeout={3000} //3 secs
         />
-        {isProfileOpen && (
-          <Modal>
-            <Profile
-              {...{ isProfileOpen, user }}
-              loadUser={this.loadUser}
-              toggleModal={this.toggleModal}
-            >
-              hello
-            </Profile>
-          </Modal>
-        )}
-        {route === "home" && (
-          <div>
-            <Logo />
-            <Rank
-              name={this.state.user.name}
-              entries={this.state.user.entries}
-            />
-            <ImageLinkForm
-              onInputChange={this.onInputChange}
-              onButtonSubmit={this.onButtonSubmit}
-            />
-            <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
-          </div>
-        )}
-        {route === "signin" && (
-          <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
-        )}
-        {route === "register" && (
-          <Register
-            loadUser={this.loadUser}
-            onRouteChange={this.onRouteChange}
-          />
-        )}
-        {route === "loading" && (
-          <Loader
-            type="Puff"
-            color="#00BFFF"
-            height={100}
-            width={100}
-            timeout={3000} //3 secs
-          />
-        )}
-      </div>
-    );
-  }
-}
+      )}
+    </div>
+  );
+};
 
 export default App;
