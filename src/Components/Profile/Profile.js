@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import "./Profile.css";
 
-const Profile = ({ isProfileOpen, toggleModal, loadUser, user = {} }) => {
+const { REACT_APP_PROFILE_URL } = process.env;
+
+const Profile = ({ toggleModal, loadUser, user = {} }) => {
   const dateJoined = new Date(user.joined);
   const [name, setName] = useState(user.name);
   const [age, setAge] = useState(user.age);
@@ -23,7 +25,7 @@ const Profile = ({ isProfileOpen, toggleModal, loadUser, user = {} }) => {
   };
 
   const onProfileUpdate = data => {
-    fetch(`http://localhost:3000/profile/${user.id}`, {
+    fetch(`${REACT_APP_PROFILE_URL}/${user.id}`, {
       method: "post",
       headers: {
         "Content-Type": "application/json",

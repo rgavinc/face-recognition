@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { signin } from "../../utils/app-functions";
 
+const { REACT_APP_REGISTER_URL } = process.env;
+
 const Register = ({ loadUser, onRouteChange }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +15,7 @@ const Register = ({ loadUser, onRouteChange }) => {
   };
 
   const onSubmitRegistration = () => {
-    fetch("http://localhost:3000/register", {
+    fetch(REACT_APP_REGISTER_URL, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, name })

@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState } from "react";
 import {
   Dropdown,
   DropdownToggle,
@@ -6,12 +6,14 @@ import {
   DropdownItem
 } from "reactstrap";
 
+const { REACT_APP_SIGNOUT_URL } = process.env;
+
 const ProfileIcon = ({ onRouteChange, toggleModal, user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleSignout = () => {
     //localhost:3000/signin
-    fetch("http://localhost:3000/signout/", {
+    fetch(REACT_APP_SIGNOUT_URL, {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -19,7 +21,6 @@ const ProfileIcon = ({ onRouteChange, toggleModal, user }) => {
       }
     })
       .then(() => {
-        console.log("in here");
         window.sessionStorage.removeItem("token");
         onRouteChange("signin");
       })

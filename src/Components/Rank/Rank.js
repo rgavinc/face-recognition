@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 
+const { REACT_APP_RANK_URL } = process.env;
+
 const Rank = ({ name, entries }) => {
   const generateEmoji = () => {
-    fetch(
-      `https://aph0hdwh0h.execute-api.us-east-1.amazonaws.com/dev/rank?rank=${entries}`
-    )
+    fetch(`${REACT_APP_RANK_URL}?rank=${entries}`)
       .then(response => response.json())
       .then(data => setEmoji(data.input))
       .catch(e => console.log("can't get rank", e));

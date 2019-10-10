@@ -12,6 +12,13 @@ import Profile from "./components/Profile/Profile";
 import Loader from "react-loader-spinner";
 import "./App.css";
 
+const {
+  REACT_APP_SIGNIN_URL,
+  REACT_APP_PROFILE_URL,
+  REACT_APP_IMAGE_DETECT_URL,
+  REACT_APP_IMAGE_COUNT_URL
+} = process.env;
+
 const particlesOptions = {
   particles: {
     number: {
@@ -51,7 +58,7 @@ const App = () => {
   useEffect(() => {
     const token = window.sessionStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:3000/signin", {
+      fetch(REACT_APP_SIGNIN_URL, {
         method: "post",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +68,7 @@ const App = () => {
         .then(resp => resp.json())
         .then(data => {
           if (data && data.id) {
-            fetch(`http://localhost:3000/profile/${data.id}`, {
+            fetch(`${REACT_APP_PROFILE_URL}/${data.id}`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: token
@@ -121,9 +128,8 @@ const App = () => {
   };
 
   const onButtonSubmit = () => {
-    console.log("ono button submit");
     setState(prevState => ({ ...prevState, imageUrl: input }));
-    fetch("http://localhost:3000/imageurl", {
+    fetch(REACT_APP_IMAGE_DETECT_URL, {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +140,7 @@ const App = () => {
       .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch("http://localhost:3000/image", {
+          fetch(REACT_APP_IMAGE_COUNT_URL, {
             method: "put",
             headers: {
               "Content-Type": "application/json",
@@ -200,7 +206,7 @@ const App = () => {
           color="#00BFFF"
           height={100}
           width={100}
-          timeout={3000} //3 secs
+          timeout={3000}
         />
       )}
     </div>
