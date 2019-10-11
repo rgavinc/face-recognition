@@ -9,7 +9,7 @@ const Rank = ({ name, entries }) => {
       .then(data => setEmoji(data.input))
       .catch(e => console.log("can't get rank", e));
   };
-  const [emoji, setEmoji] = useState(generateEmoji());
+  const [emoji, setEmoji] = useState(null);
   useEffect(() => {
     generateEmoji();
   }, [entries]); // Only re-run the effect if entries changes

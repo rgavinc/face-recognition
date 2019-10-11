@@ -12,7 +12,6 @@ const ProfileIcon = ({ onRouteChange, toggleModal, user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleSignout = () => {
-    //localhost:3000/signin
     fetch(REACT_APP_SIGNOUT_URL, {
       method: "post",
       headers: {

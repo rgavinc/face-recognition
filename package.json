@@ -11,20 +11,21 @@
     "react-dom": "^16.9.0",
     "react-loader-spinner": "^3.1.4",
     "react-particles-js": "^2.1.0",
-    "react-scripts": "^3.2.0",
     "react-tilt": "^0.1.4",
     "reactstrap": "^8.0.1",
     "tachyons": "^4.9.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "start": "react-app-env --env-file=prod.env start",
+    "dev": "react-app-env --env-file=dev.env start",
+    "build": "react-app-env build",
+    "test": "react-app-env test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
     "react-app-env": "^1.2.3",
+    "react-scripts": "^3.2.0",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9"
   },

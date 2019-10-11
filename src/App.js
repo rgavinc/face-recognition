@@ -12,6 +12,8 @@ import Profile from "./components/Profile/Profile";
 import Loader from "react-loader-spinner";
 import "./App.css";
 
+console.log("env", process.env);
+
 const {
   REACT_APP_SIGNIN_URL,
   REACT_APP_PROFILE_URL,
