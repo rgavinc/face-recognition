@@ -21,7 +21,7 @@
   "scripts": {
     "start": "react-app-env --env-file=prod.env start",
     "dev": "react-app-env --env-file=dev.env start",
-    "build": "react-app-env build",
+    "build": "react-app-env --env-file=prod.env build",
     "test": "react-app-env test --env=jsdom",
     "eject": "react-scripts eject"
   },
