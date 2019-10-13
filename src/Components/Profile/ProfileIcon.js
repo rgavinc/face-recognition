@@ -1,10 +1,10 @@
-import React, { useState } from "./node_modules/react";
+import React, { useState } from "react";
 import {
   Dropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem
-} from "./node_modules/reactstrap";
+} from "reactstrap";
 
 const { REACT_APP_SIGNOUT_URL } = process.env;
 

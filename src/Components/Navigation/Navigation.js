@@ -1,4 +1,4 @@
-import React from "./node_modules/react";
+import React from "react";
 import ProfileIcon from "../Profile/ProfileIcon";
 
 const Navigation = ({ onRouteChange, isSignedIn, ...rest }) => {
