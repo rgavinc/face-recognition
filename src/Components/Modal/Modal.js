@@ -1,5 +1,5 @@
-import { Component } from "react";
-import ReactDom from "react-dom";
+import { Component } from "./node_modules/react";
+import ReactDom from "./node_modules/react-dom";
 import "./Modal.css";
 
 const modalRoot = document.getElementById("modal-root");

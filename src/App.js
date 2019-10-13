@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Particles from "react-particles-js";
-import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
-import Navigation from "./components/Navigation/Navigation";
-import Signin from "./components/Signin/Signin";
-import Register from "./components/Register/Register";
-import Logo from "./components/Logo/Logo";
-import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
-import Rank from "./components/Rank/Rank";
-import Modal from "./components/Modal/Modal";
-import Profile from "./components/Profile/Profile";
+import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
+import Navigation from "./Components/Navigation/Navigation";
+import Signin from "./Components/Signin/Signin";
+import Register from "./Components/Register/Register";
+import Logo from "./Components/Logo/Logo";
+import ImageLinkForm from "./Components/ImageLinkForm/ImageLinkForm";
+import Rank from "./Components/Rank/Rank";
+import Modal from "./Components/Modal/Modal";
+import Profile from "./Components/Profile/Profile";
 import Loader from "react-loader-spinner";
 import "./App.css";
 

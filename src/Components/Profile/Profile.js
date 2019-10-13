@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "./node_modules/react";
 import "./Profile.css";
 
 const { REACT_APP_PROFILE_URL } = process.env;

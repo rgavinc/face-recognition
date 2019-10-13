@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "./node_modules/react";
 
 const { REACT_APP_RANK_URL } = process.env;
 
