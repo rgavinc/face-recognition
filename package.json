@@ -14,7 +14,7 @@
     "react-dom": "^16.9.0",
     "react-loader-spinner": "^3.1.4",
     "react-particles-js": "^2.1.0",
-    "react-scripts": "^3.2.0",
+    "react-scripts": "^5.0.1",
     "react-tilt": "^0.1.4",
     "reactstrap": "^8.0.1",
     "tachyons": "^4.9.0"
@@ -29,8 +29,8 @@
   "devDependencies": {
     "eslint": "^6.5.1",
     "react-app-env": "^1.2.3",
-    "webpack": "^4.41.0",
-    "webpack-cli": "^3.3.9"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "browserslist": {
     "production": [
